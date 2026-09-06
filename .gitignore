@@ -1,0 +1,7 @@
+__pycache__/
+datos/*.db
+informes/*.pdf
+informes/*.png
+build/
+dist/
+*.spec

@@ -1,0 +1,31 @@
+{
+    "agua_domestico": {
+        "cuota_fija": 5.0,
+        "minimo_m3": 40,
+        "precio_t1": 0.55,
+        "limite_t2": 80,
+        "precio_t2": 0.76,
+        "precio_t3": 1.46
+    },
+    "agua_industrial": {
+        "cuota_fija": 5.0,
+        "minimo_m3": 40,
+        "precio_t1": 0.57,
+        "limite_t2": 80,
+        "precio_t2": 0.76,
+        "precio_t3": 1.46
+    },
+    "canon_auga": {
+        "cuota_fija": 6.16,
+        "limite_t1": 24,
+        "precio_t1": 0.0,
+        "limite_t2": 48,
+        "precio_t2": 0.29,
+        "limite_t3": 80,
+        "precio_t3": 0.37,
+        "precio_t4": 0.42
+    },
+    "impuestos": {
+        "iva_agua": 0.1
+    }
+}

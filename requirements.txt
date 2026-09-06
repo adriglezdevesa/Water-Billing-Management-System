@@ -1,0 +1,4 @@
+customtkinter
+fpdf
+matplotlib
+numpy
