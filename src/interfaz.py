@@ -194,7 +194,7 @@ class GestorFacturacion(ctk.CTk):
         self.entry_direccion.grid(row=4, column=1, columnspan=3, sticky="w")
         
         ctk.CTkLabel(frame_cliente, text="Población / C.P.:").grid(row=5, column=0, padx=15, pady=10, sticky="e")
-        self.entry_poblacion = ctk.CTkEntry(frame_cliente, width=350, placeholder_text="Ej: 32670 A Pousa")
+        self.entry_poblacion = ctk.CTkEntry(frame_cliente, width=350, placeholder_text="Ej: 00000 Población de Prueba")
         self.entry_poblacion.grid(row=5, column=1, columnspan=3, sticky="w", pady=(0, 15))
 
         frame_datos = ctk.CTkFrame(self.frame_individual)

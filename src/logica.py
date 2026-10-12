@@ -20,6 +20,12 @@ def conectar_bd():
     ruta_bd = os.path.join(obtener_ruta_base(), 'datos', 'facturacion.db')
     return sqlite3.connect(ruta_bd)
 
+def carpeta_informes():
+    # Carpeta donde se guardan las facturas en PDF y las gráficas temporales; se crea si no existe
+    ruta = os.path.join(obtener_ruta_base(), 'informes')
+    os.makedirs(ruta, exist_ok=True)
+    return ruta
+
 def obtener_ruta_config():
     return os.path.join(obtener_ruta_base(), 'datos', 'config_tarifas.json')
 
@@ -165,7 +171,7 @@ def generar_grafica_historial(num_contrato):
         spine.set_linewidth(0.8)
         
     plt.tight_layout(pad=0.2)
-    ruta_img = os.path.join(obtener_ruta_base(), 'informes', f'historial_{num_contrato}.png')
+    ruta_img = os.path.join(carpeta_informes(), f'historial_{num_contrato}.png')
     plt.savefig(ruta_img, dpi=200, bbox_inches='tight', transparent=True)
     plt.close()
     return ruta_img
@@ -211,7 +217,7 @@ def generar_grafica_quesito(num_contrato, imp_agua, imp_canon, imp_iva):
               fontsize=7.5, frameon=False, handlelength=1.2, handleheight=1.2, 
               columnspacing=1.0, labelspacing=0.3)
     
-    ruta_img = os.path.join(obtener_ruta_base(), 'informes', f'quesito_{num_contrato}.png')
+    ruta_img = os.path.join(carpeta_informes(), f'quesito_{num_contrato}.png')
     plt.savefig(ruta_img, dpi=200, bbox_inches='tight', transparent=True)
     plt.close()
     return ruta_img
@@ -283,12 +289,14 @@ def procesar_factura(datos_cliente, lectura_anterior, lectura_actual, periodo=No
     fecha_hasta = fecha_emision_dt.strftime('%d/%m/%y')
     fecha_desde = (fecha_emision_dt - timedelta(days=120)).strftime('%d/%m/%y')
     
-    num_factura = f"261{int(lectura_actual)}" 
-    
+    # El número de factura es correlativo (año + id de la factura en la base de datos),
+    # así dos clientes distintos nunca comparten número ni se pisan los PDF.
     cursor.execute('''
         INSERT INTO facturas (num_factura, num_contrato, periodo, fecha_emision, lectura_anterior, lectura_actual, consumo_real, consumo_facturado, total_pagar)
-        VALUES (?, ?, ?, DATE('now'), ?, ?, ?, ?, ?)
-    ''', (num_factura, num_contrato, periodo, lectura_anterior, lectura_actual, consumo_real, consumo_facturado_agua, total_factura))
+        VALUES ('', ?, ?, DATE('now'), ?, ?, ?, ?, ?)
+    ''', (num_contrato, periodo, lectura_anterior, lectura_actual, consumo_real, consumo_facturado_agua, total_factura))
+    num_factura = f"{fecha_emision_dt.strftime('%y')}{cursor.lastrowid:05d}"
+    cursor.execute("UPDATE facturas SET num_factura = ? WHERE id_factura = ?", (num_factura, cursor.lastrowid))
     conexion.commit()
     conexion.close()
     
@@ -314,7 +322,7 @@ def procesar_factura(datos_cliente, lectura_anterior, lectura_actual, periodo=No
     
     pdf.set_xy(10, 25)
     pdf.set_font("helvetica", "B", 10)
-    pdf.cell(0, 5, "CIF: P3203700D")
+    pdf.cell(0, 5, "CIF: P0000000A")  # CIF ficticio de ejemplo
     
     color_fondo_oscuro = (180, 225, 245) 
     color_fondo_claro = (210, 240, 252) 
@@ -647,7 +655,7 @@ def procesar_factura(datos_cliente, lectura_anterior, lectura_actual, periodo=No
     
     pdf.multi_cell(0, 2.5, texto_legal, align="J")
 
-    ruta_pdf = os.path.join(obtener_ruta_base(), 'informes', f'Factura_{num_factura}.pdf')
+    ruta_pdf = os.path.join(carpeta_informes(), f'Factura_{num_factura}.pdf')
     pdf.output(ruta_pdf)
     
     try:
